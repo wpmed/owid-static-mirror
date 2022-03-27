@@ -1,4 +1,5 @@
 #!/usr/bin/python3
+from fileinput import filename
 import os
 import glob
 #import copy
@@ -13,10 +14,19 @@ from bs4 import BeautifulSoup
 #from icu import UnicodeString, Locale
 # from basicspider.sp_lib import *
 
-SOURCE_DIR = '/srv/repos/owid-static/grapher/'
-DEST_DIR = '/srv/www/html/grapher/'
+SOURCE_DIR = '/srv/repos/owid-static/'
+DEST_DIR = '/srv/www/html/'
 SOURCE_HOST = 'ourworldindata.org'
 DEST_HOST = 'owidm.wmcloud.org'
+WPMED_DONATE_URL = 'https://www.paypal.com/us/fundraiser/charity/1757736'
+
+SPECIAL_PAGES  = ['identifyadmin.html',
+                    '404.html',
+                    'donate.html',
+                    'feedback.html',
+                    'thank-you.html',
+                    'search.html',
+                    'index.html']
 
 # for test
 u1 = 'interventions-ntds-sdgs.html'
@@ -24,28 +34,81 @@ u2 = 'share-of-population-with-schizophrenia.html'
 u3 = 'share-of-adults-defined-as-obese.html'
 u4 = 'asthma-prevalence.html'
 
+m1 = 'co2-gdp-decoupling.html'
+m2 = 'diet-compositions.html'
+
 def main():
-    file_list = get_grapher_page_list()
+    do_index_page()
+    do_main_pages()
+    do_grapher_pages()
+
+def do_index_page():
+    file_name = 'index.html'
+    print('Starting ' + file_name)
+    page = get_page(file_name)
+    page.find("section", class_="homepage-coverage").decompose()
+    page.find("div", class_="see-all").decompose()
+    page.find("section", class_="homepage-subscribe").decompose()
+    page.find("section", class_="homepage-projects").decompose()
+
+    page = change_host(page)
+    page = mod_scripts(page)
+    head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
+    page.head.append(head_lines)
+    page = rem_banner(page)
+    page = do_footer(page)
+    bottom_lines = BeautifulSoup(get_main_bottom_lines(), 'html.parser')
+    page.body.append(bottom_lines)
+    output_converted_page(page, file_name)
+
+def do_main_pages():
+    file_list = get_page_list()
     for f in file_list:
-        do_page(os.path.basename(f))
-        pass
+        file_name = os.path.basename(f)
+        if file_name not in SPECIAL_PAGES:
+            try:
+                do_main_page(file_name)
+            except:
+                print('***************************')
 
-def get_grapher_page_list():
-    file_list = glob.glob(SOURCE_DIR + '*.html')
-    return file_list
-
-def do_page(file_name):
+def do_main_page(file_name):
+    print('Starting ' + file_name)
     page = get_page(file_name)
     page = change_host(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
     page.head.append(head_lines)
-    bottom_lines = BeautifulSoup(get_bottom_lines(), 'html.parser')
+    page = rem_banner(page)
+    page = do_footer(page)
+    bottom_lines = BeautifulSoup(get_main_bottom_lines(), 'html.parser')
     page.body.append(bottom_lines)
     output_converted_page(page, file_name)
 
-def get_page(file_name):
-    inp_file = SOURCE_DIR + file_name
+def do_grapher_pages():
+    file_list = get_page_list(dir='grapher/')
+    for f in file_list:
+        do_grapher_page(os.path.basename(f))
+
+def do_grapher_page(file_name):
+    print('Starting ' + file_name)
+    page = get_page(file_name, dir='grapher/')
+    # page = do_header(page) # this gets rewritten in js
+    page = change_host(page)
+    page = mod_scripts(page)
+    head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
+    page.head.append(head_lines)
+    page = rem_banner(page)
+    page = do_footer(page)
+    bottom_lines = BeautifulSoup(get_grapher_bottom_lines(), 'html.parser')
+    page.body.append(bottom_lines)
+    output_converted_page(page, file_name, dir='grapher/')
+
+def get_page_list(dir=''):
+    file_list = glob.glob(SOURCE_DIR + dir + '*.html')
+    return file_list
+
+def get_page(file_name, dir=''):
+    inp_file = SOURCE_DIR + dir + file_name
     html = read_html_file(inp_file)
     page = BeautifulSoup(html, "html5lib")
     return page
@@ -54,21 +117,60 @@ def change_host(page):
     href_tags = page.find_all(href=True)
     content_tags = page.find_all(content=True)
     src_tags = page.find_all(src=True)
+    figure_tags = page.find_all('figure')
     for tag in href_tags:
         tag['href'] = tag['href'].replace(SOURCE_HOST, DEST_HOST)
     for tag in content_tags:
         tag['content'] = tag['content'].replace(SOURCE_HOST, DEST_HOST)
-    #for tag in src_tags:
-    #    tag['src'] = tag['src'].replace(SOURCE_HOST, DEST_HOST)
-    # using owidm for vendor.js and owid.js causes image to hang
+
+    for tag in src_tags:
+        if tag.name != 'script':
+            tag['src'] = tag['src'].replace(SOURCE_HOST, DEST_HOST)
+    for tag in figure_tags:
+        if  tag.get('data-grapher-src'):
+            tag['data-grapher-src'] = tag['data-grapher-src'].replace(SOURCE_HOST, DEST_HOST)
+
+    return page
+
+def rem_banner(page):
+    banner = page.select('div.alert-banner div.content')
+    banner[0].string = ''
+    return page
+
+
+def do_header(page): # not used
+    logo = page.find("div", class_="site-logo")
+    new_logo_a = BeautifulSoup('<a href="/">Our World in<br/> Data Mirror</a>', "html5lib")
+    logo.a.replace_with(new_logo_a)
+    other_logos = page.find("div", class_="header-logos-wrapper")
+    #other_logos.decompose()
+    return page
+
+def do_footer(page):
+    donation = page.find("section", class_="donate-footer")
+    donation.p.string = 'Our World in Data Mirror and MDWiki are free and accessible for everyone.'
+    donation.a['href'] = WPMED_DONATE_URL
+    donation.a['target'] = '_blank'
+    footer = page.find("footer", class_="site-footer")
+    block = footer.find("div", class_="owid-row")
+    rm_rows = block.select('div .owid-col--lg-1')
+    #legal = footer.select('div .owid-row div .legal')
+    #rows = footer.select('div .owid-row div .owid-col .owid-col--lg-1')
+    for row in rm_rows:
+        row.decompose()
+    legal_link = footer.find_all('a')[1]
+    legal_link['href'] = '/legal'
+    #rows.append(legal)
+    site_tools = page.find("div", class_="site-tools")
+    site_tools.decompose()
     return page
 
 def mod_scripts(page):
     scripts = page.find_all('script')
     scripts[-1].string = scripts[-1].text.replace('window.Grapher.', '// window.Grapher.')
-    scripts[-3]['src'] = 'https://owidm.wmcloud.org/assets/owid.js'
-    scripts[-4]['src'] = 'https://owidm.wmcloud.org/assets/vendors.js'
-    scripts[-5]['src'] = 'https://owidm.wmcloud.org/assets/commons-mods.js'
+    scripts[-3]['src'] = '/assets/owid.js'
+    scripts[-4]['src'] = '/assets/vendors.js'
+    scripts[-5]['src'] = '/assets/commons-mods.js'
     #scripts[-3]['src'] = scripts[-3]['src'].replace(SOURCE_HOST, DEST_HOST)
     #scripts[-5]['src'] = scripts[-5]['src'].replace(SOURCE_HOST, DEST_HOST)
     return page
@@ -78,11 +180,11 @@ def read_html_file(input_file_path):
         text = f.read()
     return text
 
-def output_converted_page(page, page_file_name):
+def output_converted_page(page, page_file_name, dir=''):
     html_output = page.encode_contents(formatter='html')
-    output_file_name = DEST_DIR + page_file_name
+    output_file_name = DEST_DIR + dir + page_file_name
     write_conv_html_file(output_file_name, html_output)
-    print(output_file_name)
+    # print(output_file_name)
 
 def write_conv_html_file(output_file_name, html_output):
     output_dir = os.path.dirname(output_file_name)
@@ -93,14 +195,25 @@ def write_conv_html_file(output_file_name, html_output):
 
 def get_head_lines():
     head_lines = '''
-    <link rel="stylesheet" href="/assets/map-mixer.css">
+    <link rel="stylesheet" href="/assets/map-mirror.css">
     '''
     return head_lines
 
-def get_bottom_lines():
-    bottom_lines = '<script src="https://' + DEST_HOST + '/assets/map-mixer.js"></script>'
+def get_main_bottom_lines():
+    bottom_lines = '<script src="/assets/map-mirror.js"></script>'
+    bottom_lines += '<script>\n'
+    bottom_lines += 'var wpmedDonateUrl = "' + WPMED_DONATE_URL + '";\n'
     bottom_lines += '''
-    <script>
+    mirrorMapsHeader(wpmedDonateUrl);
+    </script>
+    '''
+    return bottom_lines
+
+def get_grapher_bottom_lines():
+    bottom_lines = '<script src="/assets/map-mirror.js"></script>'
+    bottom_lines += '<script>\n'
+    bottom_lines += 'var wpmedDonateUrl = "' + WPMED_DONATE_URL + '";\n'
+    bottom_lines += '''
     var jsonConfigCC;
     if (jsonConfigCC == undefined){
         jsonConfigCC = JSON.parse(JSON.stringify(jsonConfig));
@@ -110,8 +223,9 @@ def get_bottom_lines():
         if ('relatedQuestions' in jsonConfig)
             delete jsonConfig.relatedQuestions;
     }
-    window.Grapher.renderSingleGrapherOnGrapherPage(jsonConfig)
-    mixMaps(jsonConfigCC);
+    mirrorMapsHeader(wpmedDonateUrl);
+    window.Grapher.renderSingleGrapherOnGrapherPage(jsonConfig);
+    mirrorMaps(jsonConfigCC);
     </script>
     '''
     return bottom_lines
@@ -122,4 +236,4 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--nodownload", help="don't download assets", action="store_true")
     args = parser.parse_args()
     #main(args)
-    main()
+    #main()

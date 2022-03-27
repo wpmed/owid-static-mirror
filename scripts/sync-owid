@@ -1,0 +1,3 @@
+rsync -av --exclude '.git' '.gitignore' '.netlify' 'README.md' /srv/repos/owid-static/  /srv/www/html/
+
+sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >/srv/www/html/assets/commons-mods.js
