@@ -18,13 +18,16 @@ location / {
     try_files $uri $uri/ $uri.html =404;
 
 ## Assets
-- From a give owid-static release
+- From a given owid-static release
 - Contents of assets unmodified
 - commons-mods.js
 - This has all ourworldindata.org urls replaced with owidm.wmcloud.org
 - The following two files that patch the output of static
-- map-mixer.css
-- map-mixer.js
+- map-mirror.css
+- map-mirror.js
+
+## Pages
+- legal.html
 
 ## Conversion Scripts
 
