@@ -38,19 +38,22 @@ m1 = 'co2-gdp-decoupling.html'
 m2 = 'diet-compositions.html'
 
 def main():
-    do_index_page()
+    do_special_pages()
     do_main_pages()
     do_grapher_pages()
 
-def do_index_page():
-    file_name = 'index.html'
+def do_special_pages():
+    for file_name in SPECIAL_PAGES:
+        if file_name != 'identifyadmin.html':
+            do_special_page(file_name)
+
+def do_special_page(file_name):
     print('Starting ' + file_name)
     page = get_page(file_name)
-    page.find("section", class_="homepage-coverage").decompose()
-    page.find("div", class_="see-all").decompose()
-    page.find("section", class_="homepage-subscribe").decompose()
-    page.find("section", class_="homepage-projects").decompose()
-
+    page = remove_block("section", "homepage-coverage", page)
+    page = remove_block("div", "see-all", page)
+    page = remove_block("section", "homepage-subscribe", page)
+    page = remove_block("section", "homepage-projects", page)
     page = change_host(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
@@ -148,9 +151,10 @@ def do_header(page): # not used
 
 def do_footer(page):
     donation = page.find("section", class_="donate-footer")
-    donation.p.string = 'Our World in Data Mirror and MDWiki are free and accessible for everyone.'
-    donation.a['href'] = WPMED_DONATE_URL
-    donation.a['target'] = '_blank'
+    if donation:
+        donation.p.string = 'Our World in Data Mirror and MDWiki are free and accessible for everyone.'
+        donation.a['href'] = WPMED_DONATE_URL
+        donation.a['target'] = '_blank'
     footer = page.find("footer", class_="site-footer")
     block = footer.find("div", class_="owid-row")
     rm_rows = block.select('div .owid-col--lg-1')
@@ -161,8 +165,7 @@ def do_footer(page):
     legal_link = footer.find_all('a')[1]
     legal_link['href'] = '/legal'
     #rows.append(legal)
-    site_tools = page.find("div", class_="site-tools")
-    site_tools.decompose()
+    page = remove_block("div", "site-tools", page)
     return page
 
 def mod_scripts(page):
@@ -173,6 +176,12 @@ def mod_scripts(page):
     scripts[-5]['src'] = '/assets/commons-mods.js'
     #scripts[-3]['src'] = scripts[-3]['src'].replace(SOURCE_HOST, DEST_HOST)
     #scripts[-5]['src'] = scripts[-5]['src'].replace(SOURCE_HOST, DEST_HOST)
+    return page
+
+def remove_block(tag, tag_class, page):
+    block = page.find(tag, class_=tag_class)
+    if block:
+        block.decompose()
     return page
 
 def read_html_file(input_file_path):
@@ -236,4 +245,4 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--nodownload", help="don't download assets", action="store_true")
     args = parser.parse_args()
     #main(args)
-    #main()
+    main()
