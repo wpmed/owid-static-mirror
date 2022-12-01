@@ -15,9 +15,14 @@ from bs4 import BeautifulSoup
 # from basicspider.sp_lib import *
 
 SOURCE_DIR = '/srv/repos/owid-static/'
-DEST_DIR = '/srv/www/html/'
+SOURCE_DATE = 'November 30, 2022'
 SOURCE_HOST = 'ourworldindata.org'
+
+DEST_DIR = '/srv/www/html/'
 DEST_HOST = 'owidm.wmcloud.org'
+DEST_DIR = '/srv/www-devel/html/'
+DEST_HOST = 'owidm-devel.wmcloud.org'
+
 WPMED_DONATE_URL = 'https://www.paypal.com/us/fundraiser/charity/1757736'
 
 SPECIAL_PAGES  = ['identifyadmin.html',
@@ -33,6 +38,7 @@ u1 = 'interventions-ntds-sdgs.html'
 u2 = 'share-of-population-with-schizophrenia.html'
 u3 = 'share-of-adults-defined-as-obese.html'
 u4 = 'asthma-prevalence.html'
+u5 = 'new-covid-cases-per-million.html'
 
 m1 = 'co2-gdp-decoupling.html'
 m2 = 'diet-compositions.html'
@@ -75,7 +81,7 @@ def do_main_pages():
                 print('***************************')
 
 def do_main_page(file_name):
-    print('Starting ' + file_name)
+    print('Starting Main Page ' + file_name)
     page = get_page(file_name)
     page = change_host(page)
     page = mod_scripts(page)
@@ -93,7 +99,7 @@ def do_grapher_pages():
         do_grapher_page(os.path.basename(f))
 
 def do_grapher_page(file_name):
-    print('Starting ' + file_name)
+    print('Starting Grapher Page ' + file_name)
     page = get_page(file_name, dir='grapher/')
     # page = do_header(page) # this gets rewritten in js
     page = change_host(page)
@@ -136,8 +142,16 @@ def change_host(page):
     return page
 
 def rem_banner(page):
-    banner = page.select('div.alert-banner div.content')
-    banner[0].string = ''
+    banners = page.select('div.alert-banner div.content')
+    if len(banners) == 0:
+        return page
+    new_banner_html = 'This material was copied from Our World in Data on ' + SOURCE_DATE + '. For current data please visit <a href="https://ourworldindata.org/">Our World in Data</a>'
+    new_banner = BeautifulSoup(new_banner_html, "html5lib")
+    banners[0].string = ''
+    banners[0].append(new_banner)
+    #if banner:
+    #    banner[0].string = new_banner
+    #    banner.append(new_banner_link)
     return page
 
 
