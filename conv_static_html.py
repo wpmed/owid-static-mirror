@@ -265,6 +265,10 @@ def get_grapher_bottom_lines():
         jsonConfig.subtitle = '';
         jsonConfig.note = '';
         jsonConfig.sourceDesc += ', OWID';
+        //if ('sourceDesc' in jsonConfig)
+        //    jsonConfig.sourceDesc += ', OWID without any endorsement';
+        //else
+        //    jsonConfig.sourceDesc = 'OWID without any endorsement';
         if ('relatedQuestions' in jsonConfig)
             delete jsonConfig.relatedQuestions;
     }

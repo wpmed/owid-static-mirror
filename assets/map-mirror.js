@@ -29,6 +29,7 @@ function mirrorMaps(jsonConfig){
     }
     if (noteLen > 0)
         infoBlurb += '<BR><BR>' + jsonConfig.note
+    infoBlurb += '<BR><BR>The formating and style of this material has been altered by MDWiki for use within a Mediawiki and is not endorsed in any way by Our World in Data.'
     infoBlurb += '</span>'
 
     var host = 'owidm.wmcloud.org'
