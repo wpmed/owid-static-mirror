@@ -165,10 +165,12 @@ def do_header(page): # not used
 
 def do_footer(page):
     donation = page.find("section", class_="donate-footer")
+    # turn off donation section 12/2/2022
     if donation:
         donation.p.string = 'Our World in Data Mirror and MDWiki are free and accessible for everyone.'
         donation.a['href'] = WPMED_DONATE_URL
         donation.a['target'] = '_blank'
+        donation.decompose() # clear it
     footer = page.find("footer", class_="site-footer")
     block = footer.find("div", class_="owid-row")
     rm_rows = block.select('div .owid-col--lg-1')

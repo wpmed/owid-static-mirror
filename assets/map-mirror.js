@@ -9,7 +9,8 @@ function mirrorMapsHeader(donateUrl){
     var topNav =  $('ul.site-primary-links');
     var html = '<li><a href="https://mdwiki.org/wiki/Main_Page" data-track-note="header-navigation">MD Wiki</a></li>';
     html += '<li><a href="/legal" data-track-note="header-navigation">Legal</a></li>';
-    html += '<li><a href="' + donateUrl + '" data-track-note="header-navigation">Donate</a></li></ul>';
+    // html += '<li><a href="' + donateUrl + '" data-track-note="header-navigation">Donate</a></li>'; // remove donate 12/2/2022
+    html += '</ul>';
     topNav.innerHTML = html;
 
     var topLogos = $('div.header-logos-wrapper');
