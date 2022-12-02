@@ -1,8 +1,13 @@
+TARGET=/srv/www/html
+TARGET=/srv/www-devel/html
 cd /srv/repos
 git clone --depth 1 https://github.com/owid/owid-static.git owid-static-2022-07-18
 rm -rf owid-static/.git
 mkdir owid-static/.git
 cd /srv/repos/owid-static # so exclusions work
-rsync -av --exclude '.git' '.gitignore' '.netlify' 'README.md' /srv/repos/owid-static/  /srv/www/html/
+rsync -av --exclude '.git' '.gitignore' '.netlify' 'README.md' /srv/repos/owid-static/  $TARGET
 
-sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >/srv/www/html/assets/commons-mods.js
+sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >$TARGET/assets/commons-mods.js
+cp ../owid-static-mirror/assets/map-mirror.* $TARGET/assets
+
+# copy special pages
