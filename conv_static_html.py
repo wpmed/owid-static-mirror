@@ -18,8 +18,15 @@ SOURCE_DIR = '/srv/repos/owid-static/'
 SOURCE_DATE = 'November 30, 2022'
 SOURCE_HOST = 'ourworldindata.org'
 
+# Live - urls are owidm
 DEST_DIR = '/srv/www/html/'
 DEST_HOST = 'owidm.wmcloud.org'
+
+# Staging - urls are owidm
+DEST_DIR = '/srv/www-staging/html/'
+DEST_HOST = 'owidm.wmcloud.org'
+
+# Devel - urls are owidm-devel. this is the default
 DEST_DIR = '/srv/www-devel/html/'
 DEST_HOST = 'owidm-devel.wmcloud.org'
 
@@ -43,7 +50,14 @@ u5 = 'new-covid-cases-per-million.html'
 m1 = 'co2-gdp-decoupling.html'
 m2 = 'diet-compositions.html'
 
-def main():
+def main(args):
+    global DEST_DIR
+    global DEST_HOST
+
+    if args.staging: # do staging instead of devel
+        DEST_DIR = '/srv/www-staging/html/'
+        DEST_HOST = 'owidm.wmcloud.org'
+
     do_special_pages()
     do_main_pages()
     do_grapher_pages()
@@ -257,8 +271,8 @@ def get_grapher_bottom_lines():
 
 if __name__ == "__main__":
     # place holder for future args
-    parser = argparse.ArgumentParser(description="Convert downloaded html. By default downloads asset files")
-    parser.add_argument("-n", "--nodownload", help="don't download assets", action="store_true")
+    parser = argparse.ArgumentParser(description="Convert downloaded html.")
+    parser.add_argument("-s", "--staging", help="Convert to Staging instead of Devel", action="store_true")
     args = parser.parse_args()
-    #main(args)
-    main()
+    main(args)
+    #main()
