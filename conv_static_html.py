@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 from fileinput import filename
 import os
+import time
 import glob
 #import copy
 #import json
@@ -53,6 +54,9 @@ m2 = 'diet-compositions.html'
 def main(args):
     global DEST_DIR
     global DEST_HOST
+    global SOURCE_DATE
+
+    SOURCE_DATE = get_owid_date()
 
     if args.staging: # do staging instead of devel
         DEST_DIR = '/srv/www-staging/html/'
@@ -160,6 +164,8 @@ def rem_banner(page):
     if len(banners) == 0:
         return page
     new_banner_html = 'This material was copied from Our World in Data on ' + SOURCE_DATE + '. For current data please visit <a href="https://ourworldindata.org/">Our World in Data</a>'
+    # new_banner_html = 'This material was copied from <a href="https://ourworldindata.org/">Our World in Data</a> on ' + SOURCE_DATE + '.'
+    new_banner_html += '<BR>The formating and style of this material has been altered by MDWiki for use within a Mediawiki and is not endorsed in any way by Our World in Data.'
     new_banner = BeautifulSoup(new_banner_html, "html5lib")
     banners[0].string = ''
     banners[0].append(new_banner)
@@ -268,6 +274,10 @@ def get_grapher_bottom_lines():
     </script>
     '''
     return bottom_lines
+
+def get_owid_date():
+    repo_date = os.path.getctime('/srv/repos/owid-static/.git')
+    return time.strftime('%Y-%m-%', time.localtime(repo_date))
 
 if __name__ == "__main__":
     # place holder for future args
