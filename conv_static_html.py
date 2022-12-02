@@ -281,7 +281,7 @@ def get_grapher_bottom_lines():
 
 def get_owid_date():
     repo_date = os.path.getctime('/srv/repos/owid-static/.git')
-    return time.strftime('%Y-%m-%', time.localtime(repo_date))
+    return time.strftime('%Y-%m-%d', time.localtime(repo_date))
 
 if __name__ == "__main__":
     # place holder for future args
