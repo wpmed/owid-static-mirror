@@ -16,7 +16,7 @@ from bs4 import BeautifulSoup
 # from basicspider.sp_lib import *
 
 SOURCE_DIR = '/srv/repos/owid-static/'
-SOURCE_DATE = 'November 30, 2022'
+SOURCE_DATE = '2022-11-30'
 SOURCE_HOST = 'ourworldindata.org'
 
 # Live - urls are owidm
@@ -165,7 +165,7 @@ def rem_banner(page):
         return page
     new_banner_html = 'This material was copied from Our World in Data on ' + SOURCE_DATE + '. For current data please visit <a href="https://ourworldindata.org/">Our World in Data</a>'
     # new_banner_html = 'This material was copied from <a href="https://ourworldindata.org/">Our World in Data</a> on ' + SOURCE_DATE + '.'
-    new_banner_html += '<BR>The formating and style of this material has been altered by MDWiki for use within a Mediawiki and is not endorsed in any way by Our World in Data.'
+    new_banner_html += '<BR>The formatting and style of this material has been altered by MDWiki for use within a Mediawiki and is not endorsed in any way by Our World in Data.'
     new_banner = BeautifulSoup(new_banner_html, "html5lib")
     banners[0].string = ''
     banners[0].append(new_banner)
@@ -207,9 +207,9 @@ def do_footer(page):
 def mod_scripts(page):
     scripts = page.find_all('script')
     scripts[-1].string = scripts[-1].text.replace('window.Grapher.', '// window.Grapher.')
-    scripts[-3]['src'] = '/assets/owid.js'
-    scripts[-4]['src'] = '/assets/vendors.js'
-    scripts[-5]['src'] = '/assets/commons-mods.js'
+    scripts[-3]['src'] = '/assets-' + SOURCE_DATE + '/owid.js'
+    scripts[-4]['src'] = '/assets-' + SOURCE_DATE + '/vendors.js'
+    scripts[-5]['src'] = '/assets-' + SOURCE_DATE + '/commons-mods.js'
     #scripts[-3]['src'] = scripts[-3]['src'].replace(SOURCE_HOST, DEST_HOST)
     #scripts[-5]['src'] = scripts[-5]['src'].replace(SOURCE_HOST, DEST_HOST)
     return page
@@ -280,7 +280,7 @@ def get_grapher_bottom_lines():
     return bottom_lines
 
 def get_owid_date():
-    repo_date = os.path.getctime('/srv/repos/owid-static/.git')
+    repo_date = os.path.getctime(SOURCE_DIR + '.git')
     return time.strftime('%Y-%m-%d', time.localtime(repo_date))
 
 if __name__ == "__main__":
