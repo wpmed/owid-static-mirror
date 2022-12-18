@@ -35,8 +35,13 @@ WPMED_DONATE_URL = 'https://www.paypal.com/us/fundraiser/charity/1757736'
 
 SPECIAL_PAGES  = ['identifyadmin.html',
                     '404.html',
+                    'about.html',
                     'donate.html',
+                    'donations-faq.html',
+                    'faqs.html',
                     'feedback.html',
+                    'funding.html',
+                    'legal.html',
                     'thank-you.html',
                     'search.html',
                     'index.html']
@@ -67,6 +72,9 @@ def main(args):
     do_grapher_pages()
 
 def do_special_pages():
+    # 12/18/2022 don't do any of the special pages
+    return
+    # obsolete
     for file_name in SPECIAL_PAGES:
         if file_name != 'identifyadmin.html':
             do_special_page(file_name)
@@ -287,6 +295,8 @@ if __name__ == "__main__":
     # place holder for future args
     parser = argparse.ArgumentParser(description="Convert downloaded html.")
     parser.add_argument("-s", "--staging", help="Convert to Staging instead of Devel", action="store_true")
+    parser.add_argument("-t", "--test", help="For testing don't run main", action="store_true")
     args = parser.parse_args()
-    main(args)
+    if not args.test:
+        main(args)
     #main()
