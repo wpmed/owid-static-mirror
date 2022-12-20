@@ -14,6 +14,8 @@
 }
 .site-footer .legal {
   color: white;
+  list-style-type: disc;
+  list-style-position: inside;
 }
 
 .tooltip {
