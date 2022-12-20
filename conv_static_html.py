@@ -36,6 +36,7 @@ WPMED_DONATE_URL = 'https://www.paypal.com/us/fundraiser/charity/1757736'
 SPECIAL_PAGES  = ['identifyadmin.html',
                     '404.html',
                     'about.html',
+                    'charts.html',
                     'donate.html',
                     'donations-faq.html',
                     'faqs.html',
@@ -79,7 +80,7 @@ def do_special_pages():
         if file_name != 'identifyadmin.html':
             do_special_page(file_name)
 
-def do_special_page(file_name):
+def do_special_page(file_name): # not used
     print('Starting ' + file_name)
     page = get_page(file_name)
     page = remove_block("section", "homepage-coverage", page)
@@ -191,6 +192,8 @@ def do_header(page): # not used
     #other_logos.decompose()
     return page
 
+# revise so only div .legal remains
+# decompose it and then read lines
 def do_footer(page):
     donation = page.find("section", class_="donate-footer")
     # turn off donation section 12/2/2022
@@ -286,6 +289,26 @@ def get_grapher_bottom_lines():
     </script>
     '''
     return bottom_lines
+
+def get_legal_lines():
+    legal_lines = '''
+    <p>This site is licensed CC BY, the same as OurWorldinData from which it copies graphs and supporting material. It is completely independent of OurWorldinData and is not endorsed by it.</p>
+    <p>The purpose of this site is threefold, to host graphs on WMF infrastructure, to provide a means of selecting graphs to embed in a MediaWiki site, and to make formatting and stylistic chnages to graphs to make them more compatible with inclusion on such a site.</p>
+    <p>Use this site to embed graphs in a MediaWiki server. Use OWID for everything else.</p>
+    <p>Where possible and reasonable the following changes have been made to OWID source material:</p>
+    <ul>
+    <li>All links to ourworldindata.org have been changed to the host on which you are reading this.</li>
+    <li>Colors have been changed to avoid confusion with the OWID brand.</li>
+    <li>Pages that relate specifically to the OWID organization and its partners have not been included.</li>
+    <li>OWID and third party logos have been removed.</li>
+    <li>No changes have been made to the actual Graphs and Maps of Data.</li>
+    <li>Some Graph and Map metadata has been moved to an info popup icon.</li>
+    <li>This is site is synced with OurWorldinData periodically so data may be less current.</li>
+    <li>Graphs that disappear from OWID are intended to remain on this site as they already be in use.</li>
+    <li>robots.txt files have been deployed to discourage indexing of this site rather than ourworldindata.org</li>
+    </ul>
+    '''
+    return legal_lines
 
 def get_owid_date():
     repo_date = os.path.getctime(SOURCE_DIR + '.git')

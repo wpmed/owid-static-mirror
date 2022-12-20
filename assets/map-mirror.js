@@ -17,6 +17,11 @@ function mirrorMapsHeader(donateUrl){
     html = '<a href="https://www.oxfordmartin.ox.ac.uk/global-development" class="oxford-logo"><img src="/oms-logo.svg" alt="Oxford Martin School logo"></a>';
     html += '<a href="https://global-change-data-lab.org/" class="gcdl-logo"><img src="/gcdl-logo.svg" alt="Global Change Data Lab logo"></a></div>';
     topLogos.innerHTML = html;
+
+
+
+    $('.site-navigation-bar').innerHTML = "MDWiki's OWID Graph Collection"
+
 }
 
 function mirrorMaps(jsonConfig){
