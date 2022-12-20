@@ -283,7 +283,7 @@ def get_grapher_bottom_lines():
         if ('relatedQuestions' in jsonConfig)
             delete jsonConfig.relatedQuestions;
     }
-    mirrorMapsHeader(wpmedDonateUrl);
+    mirrorMapsHeader();
     window.Grapher.renderSingleGrapherOnGrapherPage(jsonConfig);
     mirrorMaps(jsonConfigCC);
     </script>

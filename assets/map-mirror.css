@@ -1,3 +1,20 @@
+.site-header {
+  background-color: #631d49;
+}
+
+.site-navigation-bar {
+  color: white;
+  text-align: center;
+  display: none;
+}
+
+.site-footer {
+  background-color: black;
+}
+.site-footer .legal {
+  color: white;
+}
+
 .tooltip {
     position: relative;
     display: inline-block;
