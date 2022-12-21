@@ -68,9 +68,33 @@ def main(args):
         DEST_DIR = '/srv/www-staging/html/'
         DEST_HOST = 'owidm.wmcloud.org'
 
-    do_special_pages()
+    # do_special_pages()
+    do_index_page()
     do_main_pages()
     do_grapher_pages()
+
+def do_index_page(): # chart.html is used as index page
+    file_name = 'charts.html'
+    print('Starting ' + file_name)
+    page = get_page(file_name)
+
+    page.find("section", {"id": "explorers-section"}).decompose()
+
+
+    #page = remove_block("section", "homepage-coverage", page)
+    #page = remove_block("div", "see-all", page)
+    #page = remove_block("section", "homepage-subscribe", page)
+    #page = remove_block("section", "homepage-projects", page)
+    page = change_host(page)
+    page = mod_scripts(page)
+    head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
+    page.head.append(head_lines)
+    page = rem_banner(page)
+    page = do_footer(page)
+    bottom_lines = BeautifulSoup(get_main_bottom_lines(), 'html.parser')
+    page.body.append(bottom_lines)
+    output_converted_page(page, file_name)
+    output_converted_page(page, 'index.html') # put in both charts and index
 
 def do_special_pages():
     # 12/18/2022 don't do any of the special pages
@@ -195,6 +219,10 @@ def do_header(page): # not used
 # revise so only div .legal remains
 # decompose it and then read lines
 def do_footer(page):
+    legal = page.find("div", class_="legal")
+    legal.clear()
+    legal.append(BeautifulSoup(get_legal_lines(), 'html.parser'))
+
     donation = page.find("section", class_="donate-footer")
     # turn off donation section 12/2/2022
     if donation:
@@ -209,8 +237,8 @@ def do_footer(page):
     #rows = footer.select('div .owid-row div .owid-col .owid-col--lg-1')
     for row in rm_rows:
         row.decompose()
-    legal_link = footer.find_all('a')[1]
-    legal_link['href'] = '/legal'
+    #legal_link = footer.find_all('a')[1]
+    #legal_link['href'] = '/legal'
     #rows.append(legal)
     page = remove_block("div", "site-tools", page)
     return page
@@ -293,20 +321,21 @@ def get_grapher_bottom_lines():
 def get_legal_lines():
     legal_lines = '''
     <p>This site is licensed CC BY, the same as OurWorldinData from which it copies graphs and supporting material. It is completely independent of OurWorldinData and is not endorsed by it.</p>
-    <p>The purpose of this site is threefold, to host graphs on WMF infrastructure, to provide a means of selecting graphs to embed in a MediaWiki site, and to make formatting and stylistic chnages to graphs to make them more compatible with inclusion on such a site.</p>
-    <p>Use this site to embed graphs in a MediaWiki server. Use OWID for everything else.</p>
+    <p>The purpose of this site is threefold, to host graphs on WMF infrastructure, to provide a means of selecting graphs to embed in a MediaWiki site, and to make formatting and stylistic chnages to graphs that make them more compatible with inclusion on such a site.
+     Use this site to embed graphs in a MediaWiki server. Use OWID for everything else.</p>
     <p>Where possible and reasonable the following changes have been made to OWID source material:</p>
-    <ul>
+    <ol>
     <li>All links to ourworldindata.org have been changed to the host on which you are reading this.</li>
     <li>Colors have been changed to avoid confusion with the OWID brand.</li>
     <li>Pages that relate specifically to the OWID organization and its partners have not been included.</li>
     <li>OWID and third party logos have been removed.</li>
+    <li>The 'explorer' style visualizations have not been included.</li>
     <li>No changes have been made to the actual Graphs and Maps of Data.</li>
     <li>Some Graph and Map metadata has been moved to an info popup icon.</li>
-    <li>This is site is synced with OurWorldinData periodically so data may be less current.</li>
-    <li>Graphs that disappear from OWID are intended to remain on this site as they already be in use.</li>
-    <li>robots.txt files have been deployed to discourage indexing of this site rather than ourworldindata.org</li>
-    </ul>
+    <li>This site is only synced with OurWorldinData periodically so data may be less current.</li>
+    <li>Graphs that disappear from OWID are intended to remain on this site as they may already be in use.</li>
+    <li>robots.txt files have been deployed to discourage indexing of this site.</li>
+    </ol>
     '''
     return legal_lines
 
