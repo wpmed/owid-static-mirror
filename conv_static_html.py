@@ -36,6 +36,7 @@ WPMED_DONATE_URL = 'https://www.paypal.com/us/fundraiser/charity/1757736'
 SPECIAL_PAGES  = ['identifyadmin.html',
                     '404.html',
                     'about.html',
+                    'blog.html',
                     'charts.html',
                     'donate.html',
                     'donations-faq.html',
@@ -43,6 +44,7 @@ SPECIAL_PAGES  = ['identifyadmin.html',
                     'feedback.html',
                     'funding.html',
                     'legal.html',
+                    'organization.html',
                     'thank-you.html',
                     'search.html',
                     'index.html']
@@ -68,7 +70,7 @@ def main(args):
         DEST_DIR = '/srv/www-staging/html/'
         DEST_HOST = 'owidm.wmcloud.org'
 
-    # do_special_pages()
+    do_special_pages()
     do_index_page()
     do_main_pages()
     do_grapher_pages()
@@ -86,6 +88,7 @@ def do_index_page(): # chart.html is used as index page
     #page = remove_block("section", "homepage-subscribe", page)
     #page = remove_block("section", "homepage-projects", page)
     page = change_host(page)
+    page = do_header_fonts(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
     page.head.append(head_lines)
@@ -98,11 +101,12 @@ def do_index_page(): # chart.html is used as index page
 
 def do_special_pages():
     # 12/18/2022 don't do any of the special pages
-    return
-    # obsolete
+    # but remove them
+
     for file_name in SPECIAL_PAGES:
-        if file_name != 'identifyadmin.html':
-            do_special_page(file_name)
+        if os.path.exists(DEST_DIR + file_name):
+            os.remove(DEST_DIR + file_name)
+    return
 
 def do_special_page(file_name): # not used
     print('Starting ' + file_name)
@@ -112,6 +116,7 @@ def do_special_page(file_name): # not used
     page = remove_block("section", "homepage-subscribe", page)
     page = remove_block("section", "homepage-projects", page)
     page = change_host(page)
+    do_header_fonts(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
     page.head.append(head_lines)
@@ -135,6 +140,7 @@ def do_main_page(file_name):
     print('Starting Main Page ' + file_name)
     page = get_page(file_name)
     page = change_host(page)
+    page = do_header_fonts(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
     page.head.append(head_lines)
@@ -154,6 +160,7 @@ def do_grapher_page(file_name):
     page = get_page(file_name, dir='grapher/')
     # page = do_header(page) # this gets rewritten in js
     page = change_host(page)
+    page = do_header_fonts(page)
     page = mod_scripts(page)
     head_lines = BeautifulSoup(get_head_lines(), 'html.parser')
     page.head.append(head_lines)
@@ -216,6 +223,10 @@ def do_header(page): # not used
     #other_logos.decompose()
     return page
 
+def do_header_fonts(page):
+    page.find_all('link')[3]['href'] = "https://tools-static.wmflabs.org/fontcdn/css?family=Lato:300,400,400i,700,700i|Playfair+Display:400,600,700&amp;display=swap"
+    return page
+
 # revise so only div .legal remains
 # decompose it and then read lines
 def do_footer(page):
@@ -245,10 +256,13 @@ def do_footer(page):
 
 def mod_scripts(page):
     scripts = page.find_all('script')
-    scripts[-1].string = scripts[-1].text.replace('window.Grapher.', '// window.Grapher.')
+    embed_js = scripts[-1].text.replace('window.Grapher.', '// window.Grapher.')
+    embed_js = embed_js.replace(SOURCE_HOST, DEST_HOST)
+    scripts[-1].string = embed_js
     scripts[-3]['src'] = '/assets-' + SOURCE_DATE + '/owid.js'
-    scripts[-4]['src'] = '/assets-' + SOURCE_DATE + '/vendors.js'
+    scripts[-4]['src'] = '/assets-' + SOURCE_DATE + '/vendors-mods.js'
     scripts[-5]['src'] = '/assets-' + SOURCE_DATE + '/commons-mods.js'
+    scripts[-6]['src'] = 'https://tools-static.wmflabs.org/cdnjs/ajax/libs/babel-polyfill/7.12.1/polyfill.min.js'
     #scripts[-3]['src'] = scripts[-3]['src'].replace(SOURCE_HOST, DEST_HOST)
     #scripts[-5]['src'] = scripts[-5]['src'].replace(SOURCE_HOST, DEST_HOST)
     return page
