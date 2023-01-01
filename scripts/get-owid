@@ -1,0 +1,21 @@
+date=$(date +%F)
+TARGET=/srv/www-devel/html
+MIRROR_REPO=/srv/repos/owid-static-mirror
+
+cd /srv/repos
+git clone --depth 1 https://github.com/owid/owid-static.git owid-static-$date
+rm owid-static
+ln -s owid-static-$date owid-static
+
+rm -rf owid-static/.git
+mkdir owid-static/.git
+cd /srv/repos/owid-static # so exclusions work
+rsync -av --exclude '.git' '.gitignore' '.netlify' 'README.md' *.html /srv/repos/owid-static/  $TARGET
+
+sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >$TARGET/assets/commons-mods.js
+sed -e 's,https://notify.bugsnag.com,https://owidm.wmcloud.org/bugsnag,' -e 's,https://sessions.bugsnag.com,https://owidm.wmcloud.org/bugsnag,' /srv/repos/owid-static/assets/vendors.js >$TARGET/assets/vendors-mods.js
+
+cp $MIRROR_REPO/assets/* $TARGET/assets
+cp $MIRROR_REPO/misc_files/robots.txt $TARGET/
+
+# copy special pages

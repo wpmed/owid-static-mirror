@@ -1,0 +1,8 @@
+# move devel to staging
+# to deploy, rename /srv/www-staging to /srv/www
+
+cd /srv/repos/owid-static-mirror
+rm -rf /srv/www-staging
+mv /srv/www-devel /srv/www-staging
+sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >/srv/www-staging/html/assets/commons-mods.js
+python3 conv_static_html.py --staging
