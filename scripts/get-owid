@@ -12,7 +12,9 @@ mkdir owid-static/.git
 cd /srv/repos/owid-static # so exclusions work
 rsync -av --exclude '.git' '.gitignore' '.netlify' 'README.md' *.html /srv/repos/owid-static/  $TARGET
 
-sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >$TARGET/assets/commons-mods.js
+# sed 's/ourworldindata.org/owidm.wmcloud.org/' /srv/repos/owid-static/assets/commons.js >$TARGET/assets/commons-mods.js
+sed -e 's/ourworldindata.org/owidm.wmcloud.org/' -e 's,${t}/oms-logo.svg,/oms-logo.svg,' -e 's,${t}/gcdl-logo.svg,/gcdl-logo.svg,'  /srv/repos/owid-static/assets/commons.js >$TARGET/assets/commons-mods.js
+
 sed -e 's,https://notify.bugsnag.com,https://owidm.wmcloud.org/bugsnag,' -e 's,https://sessions.bugsnag.com,https://owidm.wmcloud.org/bugsnag,' /srv/repos/owid-static/assets/vendors.js >$TARGET/assets/vendors-mods.js
 
 cp $MIRROR_REPO/assets/* $TARGET/assets
