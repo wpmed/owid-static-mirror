@@ -40,8 +40,10 @@ function mirrorMaps(jsonConfig) {
   // $('figure div .HeaderHTML a')
   // $('figure div .HeaderHTML a').nextElementSibling
 
+  // adding onclick for table didn't really solve anything
   $('[data-track-note="chart-click-map"]').setAttribute("onClick", "mirrorMaps(jsonConfigCC);");
   $('[data-track-note="chart-click-chart"]').setAttribute("onClick", "mirrorMaps(jsonConfigCC);");
+  $('[data-track-note="chart-click-table"]').setAttribute("onClick", "mirrorMaps(jsonConfigCC);");
   // $('.GrapherComponent').setAttribute( "onClick", "grapherComponentClick();" );
 }
 
