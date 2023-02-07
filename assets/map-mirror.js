@@ -1,38 +1,48 @@
 function mirrorMapsHeader() {
   var html = "MDWiki's OWID Graph Collection"
-  html += '<div><button style="border-radius: 8px;" onclick="owidmCopyExtension()">Click to Compute and Copy Embed Tag</button><span>&nbsp;Then Paste on Page in Wiki Editor.</span><div>'
-  html += '<div>Clipboard:&nbsp;<span id="owidmEmbedTag" style="font-size: .75em;"></span></div>'
-
-  $('.site-navigation-bar').innerHTML = encodeURIComponent(html)
-  //$('.site-navigation-bar').innerHTML = encodeURI(html)
+  var graphFrag = owidmGetGraphFrag()
+  if (graphFrag != ''){
+    html += '<div><button style="border-radius: 8px;" onclick="owidmCopyExtension()">Click to Compute and Copy Embed Tag</button><span>&nbsp;Then Paste on Page in Wiki Editor.</span><div>'
+    html += '<div>Clipboard:&nbsp;<span id="owidmEmbedTag" style="font-size: .75em;"></span></div>'
+  }
+  $('.site-navigation-bar').innerHTML = html
   $('.site-navigation-bar').style.display = 'block'
 }
 
 function owidmCopyExtension() {
-  var urlParts = window.location.href.split('/')
   var tagString
   var paramString = ''
   var paramParts = []
 
-  if (urlParts.length != 5)
-    tagString = ''
-  else if (urlParts[3] != 'grapher')
-    tagString = ''
-  else
-    tagString = '<ourworldindata'
-    const parts = urlParts[4].split('?')
-    const page = parts[0]
-    if (parts.length == 2)
-      paramParts = parts[1].split('&')
-      for (var i in paramParts)
-        tagString += ' ' + paramParts[i]
-    tagString += '>' + page + '</ourworldindata>'
+  var graphFrag = owidmGetGraphFrag()
+  if (graphFrag == '')
+    return
 
-  $('#owidmEmbedTag').innerHTML = tagString
+  tagString = '<ourworldindata'
+  const parts = graphFrag.split('?')
+  const page = parts[0]
+  if (parts.length == 2)
+    paramParts = parts[1].split('&')
+    for (var i in paramParts)
+      tagString += ' ' + paramParts[i]
+  tagString += '>' + page + '</ourworldindata>'
+
+  $('#owidmEmbedTag').innerHTML =  owidmEscapeTag(tagString)
   navigator.clipboard.writeText(tagString);
 }
 
-function escape(htmlStr) {
+function owidmGetGraphFrag(){
+  const urlParts = window.location.href.split('/')
+
+  if (urlParts.length != 5)
+    return ''
+  else if (urlParts[3] != 'grapher')
+    return ''
+  else
+    return urlParts[4]
+}
+
+function owidmEscapeTag(htmlStr) {
   return htmlStr.replace(/&/g, "&amp;")
         .replace(/</g, "&lt;")
         .replace(/>/g, "&gt;")
