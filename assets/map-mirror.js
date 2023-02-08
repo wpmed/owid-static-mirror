@@ -18,7 +18,7 @@ function owidmCopyExtension() {
   if (graphFrag == '')
     return
 
-  tagString = '<ourworldindata'
+  tagString = '<templatestyles src="Owid/styles.css"/><ourworldindata'
   const parts = graphFrag.split('?')
   const page = parts[0]
   if (parts.length == 2)
