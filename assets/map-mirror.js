@@ -118,6 +118,7 @@ function mirrorMapsToolTip() {
   }
   if (noteLen > 0)
     infoBlurb += '<BR><BR>' + jsonConfigCC.note
+  infoBlurb += '<BR><BR>Source: ' + jsonConfigCC.sourceDesc
   infoBlurb += '</span>'
   var infoImg = '<img src="/images/240px-Info_icon_002.svg.png" alt="Info" width="35" height="auto">'
 

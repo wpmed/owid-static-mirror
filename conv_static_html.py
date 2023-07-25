@@ -317,7 +317,7 @@ def get_grapher_bottom_lines():
         jsonConfigCC = JSON.parse(JSON.stringify(jsonConfig));
         jsonConfig.subtitle = '';
         jsonConfig.note = '';
-        jsonConfig.sourceDesc += ', OWID';
+        jsonConfig.sourceDesc = 'OWID';
         //if ('sourceDesc' in jsonConfig)
         //    jsonConfig.sourceDesc += ', OWID without any endorsement';
         //else
