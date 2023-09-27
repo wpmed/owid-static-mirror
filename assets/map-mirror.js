@@ -1,5 +1,6 @@
 function mirrorMapsHeader() {
-  var html = "MDWiki's OWID Graph Collection"
+  var html = "MDWiki's OWID Graph Collection:"
+  html += '&nbsp;&nbsp;<a href="/">Article Index</a>'
   var graphFrag = owidmGetGraphFrag()
   if (graphFrag != ''){
     html += '<div><button style="border-radius: 8px;" onclick="owidmCopyExtension()">Click to Compute and Copy Embed Tag</button><span>&nbsp;Then Paste on Page in Wiki Editor.</span><div>'
